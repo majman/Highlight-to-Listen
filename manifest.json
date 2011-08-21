@@ -1,0 +1,15 @@
+{
+	"name": "Highlight to Listen 2",
+	"version": "2.0",
+	"description": "Highlight to Listen allows you to search for music & info for any artist by simply right clicking text on a web page.",
+	"background_page": "background.html",
+	"icons": {"16": "images/htl_contexticon.png", 
+		"48" : "images/htl_icon-128.png", 
+		"48" : "images/htl_icon-128.png"},
+	"permissions": [
+	    "tabs",
+		"contextMenus",
+	    "http://*/*",
+	    "https://*/*"
+	  ]
+}

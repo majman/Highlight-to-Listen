@@ -1,0 +1,591 @@
+/* v1.0 | 20080212 CSS RESET */
+
+#htlResults div, #htlResults span, #htlResults h4, #htlResults h5, #htlResults h6, #htlResults p, 
+#htlResults a, #htlResults em, #htlResults img, #htlResults small, #htlResults strike, #htlResults strong, 
+#htlResults b, #htlResults u, #htlResults i, #htlResults center, #htlResults ol, #htlResults ul, #htlResults li, 
+#htlResults fieldset, #htlResults form, #htlResults label {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+	background: transparent;
+	font-family:sans-serif !important;
+	text-shadow:none;
+	text-transform: none;
+	font-weight: normal;
+}
+div#htlResults ol, div#htlResults ul {
+	list-style: none;
+}
+/* remember to define focus styles! */
+div#htlResults :focus {
+	outline: 0;
+}
+
+/* --------- HTL STUFF --------- */
+
+div#htlResults br.clear{
+	clear:both;
+}
+div#htlIcon{
+	width:40px;
+	height:40px;
+	background:transparent no-repeat 0 0 !important;
+	margin-bottom:12px;
+}
+
+/* preloader */
+div#htlLoader{
+	background:rgba(10,15,16,.8) url(../images/spokes.gif) center center no-repeat !important;
+	width:40px;
+	height:40px;
+	-webkit-border-radius:8px;
+	top:100px;
+	left:100px;
+	position: fixed;
+	z-index: 99999;
+	-webkit-transition:all .2s ease-in-out;
+	-webkit-transform:scale(1);
+	opacity:1;
+}
+div#htlLoader.htlNoResults{
+	background-image: none !important;
+	color: white;
+	font-size: 17px;
+	text-align: center;
+	line-height: 37px;
+	font-weight: bold;
+	text-shadow: 0 -1px 0 black;
+}
+
+div#htlLoader.htlPreZoom{
+	-webkit-transform:scale(.2);
+	opacity:0;
+}
+div#htlLoader.htlPostZoom{
+	-webkit-transform:scale(1.5);
+	opacity:0;
+}
+/*RESULTS */
+body div#htlResults{
+	width:645px;
+	height:500px;
+	-webkit-border-radius:5px;
+	margin:20px auto;
+	padding:0;
+	-webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+	position:fixed;
+	z-index:99995;
+	overflow:hidden;
+	font-family:Helvetica, Arial, sans-serif;
+	font-size:14px;
+	text-align:left;
+	line-height:18px;
+	color:#222;
+	background:rgba(255,255,255, 0.94);
+	
+	-webkit-transition:all .1s ease-out;
+	-webkit-transform:translateY(0px);
+	-webkit-transform:translateZ(0px);
+	opacity:1;
+}
+body div#htlResults.htlPreZoom{
+/*	opacity:0;
+	-webkit-transform:translateY(7px);*/
+}
+body div#htlNav{
+	width:40px;
+	background:#d5d7d8;
+	-webkit-border-radius:5px 0 0 5px;
+	-webkit-box-shadow: -1px 0 0 rgba(0,0,0,.1) inset;
+	height:480px;
+	position:absolute;
+	left:0;
+	top:0;
+	padding:10px;
+	z-index:500;
+}
+body div.htlResultThumb{
+	background-position:0 0 !important;
+	background-size:40px 40px !important;
+	width:40px;
+	height:40px;
+	-webkit-border-radius:2px;
+	margin-bottom:10px !important;
+	background-color: #666 !important;
+	position:relative;
+	
+	-webkit-transition:all .1s linear;
+}
+body div#htlResultActive.htlResultThumb{
+	-webkit-box-shadow: 0 0 0 2px white, 0 0 1px 2px rgba(0, 0, 0, .2);
+}
+body div.htlResultsNum{
+	height: 12px !important;
+	width: 17px !important;
+	background: white !important;
+	display: block !important;
+	font-size: 9px !important;
+	position: absolute !important;
+	border-radius: 6px !important;
+	-webkit-box-shadow: 0 0 0 1px rgba(0, 0, 0, .2) !important;
+	right: -3px !important;
+	bottom: -4px !important;
+	text-align: center !important;
+	line-height: 12px;
+	color: #666;
+	font-weight: bold;
+}
+
+body div#htlArrow{
+	width:6px;
+	height:13px;
+	background:url(../images/arrow.png) no-repeat 0 0;
+	position:absolute;
+	top:20px;
+	right:-5px;
+	-webkit-transform:translateY(57px);
+	-webkit-transition:all .1s ease-in-out;
+}
+
+body div#htlResultMenu{
+	height:54px;
+	overflow: hidden;
+	width:555px;
+	border-bottom:1px solid rgba(0,0,0,.1);
+	margin:0 0 0 15px;
+	background:rgba(255,255,255,.95);
+	position:fixed;
+	left:60px;
+	top:0;
+	z-index:99990;
+	padding-left: 15px;
+	padding-right: 15px;
+	left: 45px;
+	-webkit-border-radius: 0 5px 0 0;
+	-webkit-transition:-webkit-transform .4s ease-in-out;
+}
+
+body div#htlResultMenu.htlSlideRight, body div#htlResultsWrapper.htlSlideRight{
+	-webkit-transform: translateX(590px) !important;
+}
+
+body div.htlArtistLinks {
+	width:auto;
+	height:40px;
+	position:absolute;
+	right:45px;
+	top: 7px;
+	overflow:hidden;
+	border-right:1px solid rgba(0,0,0,.05) !important;
+	padding-right:5px;
+}
+
+body div.htlArtistLinks a{
+	width:25px;
+	height:25px;
+	display:block;
+	height: 30px;
+	background-position: 0 -47px !important;
+	background-repeat: no-repeat !important;
+	margin: 5px 9px 0 !important;
+	float:right;
+	-webkit-transition:background-position .2s ease-out;
+}
+body div.htlArtistLinks a.htlItunes{
+	background-position-x:-40px !important;
+}
+body div.htlArtistLinks a.htlMyspace{
+	background-position-x:-81px !important;
+}
+body div.htlArtistLinks a.htlBandcamp{
+	width:39px;
+	margin-left:6px !important;
+	background-position-x:-118px !important;
+}
+
+
+body div.htlArtistLinks a:hover{
+	background-position-y:3px !important;
+}
+body div#htlClose{
+	position: absolute;
+	width: 22px;
+	height: 22px;
+	top: 16px;
+	right: 20px;
+	-webkit-border-radius: 11px;
+	z-index: 9999;
+	background: rgba(0,0,0,.1) center center no-repeat;
+	cursor:pointer;
+	-webkit-transition:background .1s linear;
+}
+body div#htlClose:hover{
+	background: rgba(0,0,0,.6) center center no-repeat;
+}
+body div#htlArtistNamesWrapper{
+	-webkit-transition:all .4s ease-in-out;
+}
+body div.htlArtistName{
+	position: relative;
+}
+
+body div.htlInnerResults{
+	position:relative;
+	width:567px;
+	height: 442px;
+	margin:0 8px 0 15px !important;
+	padding-top:70px  !important;
+	left:60px;
+	top:0;
+	overflow:hidden;
+	color:#333;
+	margin-bottom:60px;
+	
+	overflow:auto;
+	margin-right:0 !important;
+}
+
+body div#htlActiveArtist.htlInnerResults{
+	overflow:auto;
+	margin-right:0 !important;
+}
+
+body div#htlResultsWrapper{
+	-webkit-transform:translateZ(0);
+	-webkit-transition:all .4s ease-in-out;	
+}
+.htlArtist{
+	width:auto;
+	overflow:hidden;
+	margin-right:10px !important;
+	padding-bottom:30px !important;
+}
+
+body span#htlSelectedText{
+	font-weight:bold !important;
+	-webkit-transition:all .2s linear;
+	border-radius:2px;
+}
+body span#htlSelectedText.htlOn{
+	color:#fff !important;
+	background-color:rgba(0,0,0,.5) !important;
+	padding-left:5px !important;
+	padding-right:5px !important;
+}
+
+/*artist title & bio*/
+div#htlResults h5{
+	font-size:25px;
+	font-weight:bold;
+	margin: 0 0 10px 0;
+	color:#000;
+	padding: 0;
+	font-style:normal;
+	text-transform:none;
+	letter-spacing:0;
+	line-height: 55px;
+	
+	max-width: 390px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+div.htlBio p{
+	font-size:14px !important;
+	line-height:20px !important;
+}
+
+div#htlResults h6{
+	font-size:20px;
+	font-weight:bold;	
+	color:#000;
+	margin-bottom: 10px;
+	font-style:normal;
+	text-transform:none;
+	letter-spacing:0;
+}
+div#htlResults a{
+	text-decoration:none;
+	color:#1077C7;
+}
+
+/*audio section*/
+body div.htlAudios{
+	margin-top:15px !important;
+	clear:both;
+}
+
+body div.htlAudioBlock{
+
+}
+
+body div.htlAudio{
+	height:29px;
+	padding:0 15px 0 30px !important;
+	line-height:30px;
+	background:url(../images/play-pause.png) no-repeat 8px -53px !important;
+	position:relative;
+	overflow:hidden;
+
+	background-color: rgba(0,0,0,.03) !important;
+	border-radius: 2px !important;
+	margin-bottom: 2px !important;
+	-webkit-transition:opacity .2s linear, background-color .1s linear;
+
+}
+
+body div.htlAudio .htlProgress{
+	background: rgba(0, 0, 0, 0.1) !important;
+	display: block;
+	position: absolute;
+	width: 0;
+	height: 29px;
+	left: 0;
+	top: 0;
+}
+
+
+
+
+body div.htlAudio.htlBroken{
+	opacity:.5;
+	background-color: transparent !important;
+	background-position:8px -110px !important;
+	cursor:default;
+}
+
+body div.htlAudio.htlCurrent.htlLoading{
+	background-position: 6px 8px !important;
+}
+
+body #htlResults div.htlAudio:hover:not(.htlBroken):not(.htlLoading):not(.htlActive){
+	background-position:8px 7px !important;
+	background-color: rgba(0, 0, 0, .075) !important;
+}
+
+body div.htlAudio.htlCurrent{
+	-webkit-box-shadow:0 0 0 1px rgba(0,0,0,.03) inset;
+	background-color:#e6e6e6 !important;
+}
+body div.htlAudio.htlActive{
+	background-position:8px -83px !important;
+}
+body #htlResults div.htlAudio.htlActive:hover{
+	background-position:8px -23px !important;
+}
+body span.htlTrackTitle{
+	float:left;
+	display:block;
+}
+body a.htlTrackSource{
+	float:right;
+	display:block;
+}
+
+#htlInnerResults .exfmSinglePlayer{
+	float:left;
+	
+}
+
+
+body div.htlBlogs{
+	margin-top:18px !important
+}
+body div.htlBlogs .htlBlog{
+	height: 25px;
+	line-height: 25px;
+}
+body div.htlBlogs .htlBlog a{
+	float:left;
+	display:block;
+	max-width:400px;
+	text-overflow:ellipsis;
+	overflow: hidden; 
+	white-space:nowrap;
+}
+body div.htlBlogs .htlBlogDate{
+	float:right;
+	display:block;
+}
+
+
+#htlResults{
+	
+	-webkit-transition: -webkit-transform 1s;
+	-webkit-transform-style: preserve-3d;
+	-webkit-transform-origin: right center;
+	-webkit-transform-origin-x: 100%;
+	-webkit-transform-origin-y: 50%;
+}
+#htlResults.flipped {
+	-webkit-transform: translateX( -100% ) rotateY( -180deg );
+}
+
+
+.htlImages{
+	float: left;
+	margin-right: 15px !important;
+	width:200px;
+}
+
+.htlImages img{
+	width:200px;
+}
+.htlArtistNum{
+	background: #AAA;
+	-webkit-border-radius:12px;
+	color: white;
+	display: block;
+	height: 24px;
+	line-height: 24px;
+	text-align: center;
+	width: 24px;
+	float:left;
+	margin-right:10px;
+	font-weight:bold;
+}
+.htlBioSource{
+	font-size:12px;
+}
+#htlBlock{
+	width:100%;
+	height:100%;
+	position:fixed;
+	top:0;
+	left:0;
+	z-index:99990;
+	background:#000;
+	opacity:.25;
+}
+#htlResults .sContentDiv:last-child{
+	border:none;
+}
+
+#htlCredits{
+	color:#666;
+	font-size:12px;
+	padding: 10px 15px 5px 15px;
+
+}
+
+.htlDisplayNone{
+	display:none !important;
+}
+
+#htlAboutLink {
+	opacity:.65;
+	position: absolute;
+	bottom: 8px;
+	width: 17px;
+	height: 17px;
+	left: 8px;
+	overflow: hidden;
+	text-indent: -5000px;
+	background-color: rgba(0, 0, 0, .2) !important;
+	display: block;
+	border-radius: 9px;
+	-webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, .5), 0 1px 0 rgba(0, 0, 0, .1) inset;
+	background-position: 3px -149px !important;
+	background-repeat: no-repeat !important;
+	-webkit-transition: opacity .1s linear;
+}
+#htlAboutLink:hover {
+	opacity:1;
+}
+
+#htlAbout{
+	width: 340px;
+	background: white !important;
+	border-radius: 5px;
+	position: absolute;
+	top: 100px;
+	opacity: 1;
+	left: 172px;
+	font-size: 12px !important;
+	padding: 10px 2px !important;
+	-webkit-box-shadow: 0 0 0 1px #EEE;
+	line-height: 18px;
+	text-align:center;
+	opacity:1;
+	-webkit-transition:opacity .2s linear;
+}
+
+#htlAboutLeft {
+	width: 160px;
+	float: left;
+	text-align: right;
+	padding-right: 10px !important;
+	margin-bottom:15px;
+}
+#htlAboutRight {
+	color: #777 !important;
+	text-align: left;
+	margin-bottom:15px;
+}
+
+a#htlExfmLogo{
+	display:block;
+	width: 340px;
+	height: 29px;
+	background-position:50% 0 !important;
+	background-repeat:no-repeat !important;
+	position: absolute;
+	bottom: -50px;
+	opacity:.6;
+	-webkit-transition:opacity .1s linear;
+}
+a#htlExfmLogo:hover{
+	opacity:1;
+}
+
+#htlAbout span {
+	display: block;
+	margin-bottom: 5px;
+}
+
+#htlAbout.htlAboutOff{
+	opacity:0;
+	top:600px;
+}
+	
+/* scroll bars*/
+div.htlInnerResults::-webkit-scrollbar-button {
+	display:none;
+}
+/* Turn on single button up on top, and down on bottom */
+div.htlInnerResults::-webkit-scrollbar-button:start:decrement {
+    display: block !important;
+	height:60px;
+	background:transparent;
+}
+
+div.htlInnerResults::-webkit-scrollbar-button:end:increment {
+    display: block !important;
+	height:15px;
+	background:transparent;
+}
+
+div.htlInnerResults::-webkit-scrollbar {
+	height: 6px;
+	width: 6px;
+	height:20px;
+
+}
+div.htlInnerResults::-webkit-scrollbar-track{
+	background:transparent;
+}
+
+div.htlInnerResults::-webkit-scrollbar-track-piece {
+	background:transparent;
+}
+div.htlInnerResults::-webkit-scrollbar-thumb:vertical {
+    background-color: #bdc0c1;
+	border: 2px solid transparent;
+    min-height: 20px;
+	-webkit-border-radius:3px;
+
+}

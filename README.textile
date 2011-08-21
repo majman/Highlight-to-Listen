@@ -1,0 +1,13 @@
+A weekend project for Music Hackday by Marshall Jones @ "ex.fm":http://extension.fm
+
+Highlight to listen allows you to select any text on a web page and then search against the Echo Nest API for artists, biogrphies, audio, images, and related blog entries. 
+
+Feel free to fork this and add some more awesomeness. There's plenty of data returned from Echo Nest. 
+
+Make sure you get your own API key from Echo Nest for personal use. 
+
+And most importantly, rock out!
+
+!http://github.com/ExtensionFM/Highlight-to-Listen/raw/master/images/screen_1.png(screens)!
+!http://github.com/ExtensionFM/Highlight-to-Listen/raw/master/images/screen_2.png(screens)!
+!http://github.com/ExtensionFM/Highlight-to-Listen/raw/master/images/screen_3.png(screens)!

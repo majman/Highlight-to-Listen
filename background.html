@@ -1,0 +1,487 @@
+<html>
+  <head>
+    <title>Background Page</title>
+	<script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+	
+	<script>
+		$(function(){
+
+			// ==================================================
+			// Add H2L Context Menu Item
+			// ==================================================
+			var inserted = {};
+			chrome.contextMenus.create({"title": "Find audio by \'%s\'", 
+				"contexts":["selection"], 
+				"onclick": function(info, tab) {
+					//console.log('inserted '+inserted["tab"+tab.id])
+					if(inserted["tab"+tab.id] == undefined){
+						chrome.tabs.insertCSS(null, {file: "css/htl.css"}, function(){
+							chrome.tabs.executeScript(null, {file: "js/jquery-1.4.3.min.js"});
+							chrome.tabs.executeScript(null, {file: "js/contentscript.js"}, function(){
+								sendSearch(info.selectionText);
+								showIndicator();
+								inserted["tab"+tab.id] = true;
+							});
+						});
+					}else{
+						sendSearch(info.selectionText);
+						showIndicator();
+					}
+					
+				}
+			});
+
+			// ==================================================
+			// Preload Indicator
+			// ==================================================
+			function showIndicator(){
+				chrome.tabs.getSelected(null, function(tab) {
+				  	chrome.tabs.sendRequest(tab.id, {preload:'true'}, function(response){
+						//console.log('response = ', response, tab.id, tab.url)
+					});
+				});
+			}
+			
+			// ==================================================
+			// Search Echo Nest
+			// ==================================================
+			function sendSearch(searchTerm){
+				$.ajax({
+					"url" : "http://developer.echonest.com/api/v4/artist/search?bucket=audio&bucket=blogs&bucket=urls", 
+					"type" : "GET", 
+					"data" : {'api_key':'N6E4NIOVYMTHNDM8J', 
+						'format':'jsonp', 
+						'name': searchTerm, 
+						'results':'5', 
+						'sort':'familiarity-desc'
+						}, 
+					"success" : createResultsPage, 
+					"dataType" : "jsonp"
+				});
+
+				chrome.tabs.getSelected(null, function(tab) {
+					var taburl = tab.url;
+					trackSearch(searchTerm, taburl);
+				});
+			}
+						
+			// ==================================================
+			// Parse data and convert to html
+			// ==================================================
+			var htlResults;
+			var totalResults;
+			
+			function createResultsPage(data){
+				var artists = $(data.response.artists);
+				totalResults = 0;
+
+				// return false if no results
+				if(artists.length <= 0){
+					chrome.tabs.getSelected(null, function(tab) {
+					  chrome.tabs.sendRequest(tab.id, {noData:1});
+					});
+					return false;
+				}
+				htlResults = $('<div id="htlResults"></div>');
+				var htlNav = $('<div id="htlNav"><div id="htlIcon" style="background-image:url('+chrome.extension.getURL("/images/logo.png")+') !important"></div><div id="htlArrow" style="background-image:url('+chrome.extension.getURL("images/arrow.png")+')"></div></div>');
+				var htlResultMenu = $('<div id="htlResultMenu"><div id="htlClose" style="background-image:url('+chrome.extension.getURL("images/close.png")+') !important;"></div></div>');
+				var htlArtistNamesWrapper = $('<div id="htlArtistNamesWrapper">');
+
+				var htlResultsWrapper = $('<div id="htlResultsWrapper"></div>');
+				
+				artists.each(function(i){
+					// continue loop to next if artist has no audio
+
+					if(this.audio.length <= 0 && this.blogs.length <= 0){
+						return true; // continue
+					}
+					totalResults++;
+					// add artist name
+					var aName = $('<div class="htlArtistName"><h5 class="htlArtistName">'+this.name+'</h5></div>');
+										
+					// nav artist thumb
+					var thumbID = '';
+					var artistID = '';
+					if(i == 0){
+						thumbID = 'htlResultActive';
+						artistID = 'htlActiveArtist';
+					}
+					htlNav.append('<div class="htlResultThumb" id="'+thumbID+'" name="'+this.name+'"></div>')
+
+					var aResult = $('<div class="htlInnerResults" id="'+artistID+'"></div>');
+					var aContainer = $('<div class="htlArtist"></div>');
+					
+					// artist image
+					aContainer.append('<div class="htlImages"><div>')
+					
+					// ==================================================
+					// Get Artist Links
+					// ==================================================
+					var htlUrls = '';
+					if(this.urls.myspace_url != undefined){
+						htlUrls += '<a style="background-image:url('+chrome.extension.getURL("images/buy.png")+');" href="'+this.urls.myspace_url+'" class="htlMyspace"></a>';
+					}
+					if(this.urls.amazon_url != undefined){
+						htlUrls += '<a style="background-image:url('+chrome.extension.getURL("images/buy.png")+');" href="'+this.urls.amazon_url+'" class="htlAmazon"></a>';
+					}
+					if(this.urls.itunes_url != undefined){
+						htlUrls += '<a style="background-image:url('+chrome.extension.getURL("images/buy.png")+');" href="'+this.urls.itunes_url+'" class="htlItunes"></a>';
+					}
+
+					if(htlUrls.length > 1){
+						$(aName).append('<div class="htlArtistLinks">'+htlUrls+'</div>');
+					}
+					
+					$(htlArtistNamesWrapper).append(aName);
+					
+					
+					// ==================================================
+					// Get Artist Bio
+					// ==================================================
+					var bio = $('<div class="htlBio sContentDiv"></div>');
+
+					bioText = '<p class="htlBioText"></p><br class="clear" />';
+					bio.append(bioText);
+					
+					// add bio
+					aContainer.append(bio);
+					
+					// ==================================================
+					// Get Artist Audio
+					// ==================================================
+					if(this.audio.length > 0){
+						
+						var htlAudios = $('<div class="htlAudios"><h6>Audio</h6></div>');
+						var htlAudioBlock = $('<div class="htlAudioBlock"></div>');
+
+						var audio = jQuery(this.audio);
+						var audioTitles = [];
+						var totalTitles = 0;
+						var trackDivs = '';
+						audio.each(function(j){
+							for(var k in audioTitles){
+								if(this.title != undefined & this.title != null){
+									if(audioTitles[k] == this.title.toLowerCase()){
+										return true; // continue
+									}
+								}
+							}
+
+							if(this.title != undefined & this.title != null){
+								audioTitles.push(this.title.toLowerCase());
+								trackDivs += '<div class="htlAudio" style="background-image:url('+chrome.extension.getURL("images/play-pause.png")+') !important;"><audio href="'+this.link+'" src="'+this.url+'" artist="" album="" songtitle="'+this.title+'"></audio><span class="htlTrackTitle">'+this.title+'</span><a class="htlTrackSource" href="'+this.link+'">via</a><br class="clear" /><span class="htlProgress"></span></div>';
+							}
+							if(totalTitles >= 9){
+								return false; // break after 10 tracks
+							}
+							totalTitles++;
+
+						})
+						$(this).data('totalTitles', totalTitles)
+						htlAudioBlock.append(trackDivs);
+						htlAudios.append(htlAudioBlock);
+						aContainer.append(htlAudios);
+					}
+					
+					// ==================================================
+					// Get Artist Blogs
+					// ==================================================
+
+					if(this.blogs.length > 0){
+						var htlBlogs = $('<div class="htlBlogs sContentDiv"><h6>Blogs</h6></div>');
+						var blogs = jQuery(this.blogs);
+						var blogDivs = '';
+						blogs.each(function(j){
+							var d = dateFormat(this.date_posted, "ddd, mmm d, yyyy");
+							blogDivs += '<div class="htlBlog"><a href="'+this.url+'">'+this.name+'</a><span class="htlBlogDate">'+d+'</span><br class="clear"></div>';
+							if(j >= 4){
+								return false; // break after 5 blogs
+							}
+						})
+						
+						htlBlogs.append(blogDivs);
+						aContainer.append(htlBlogs);
+					}
+
+					aResult.append(aContainer);
+					htlResultsWrapper.append(aResult)
+					
+				});
+				
+				// ==================================================
+				// make sure there are results
+				// ==================================================
+				if(totalResults == 0){
+					chrome.tabs.getSelected(null, function(tab) {
+					  chrome.tabs.sendRequest(tab.id, {noData:1});
+					});
+					return false;
+				}
+				
+				// ==================================================
+				// Add About Page
+				// ==================================================
+				var htlAbout = $('<div id="htlAbout" class="htlAboutOff"><div id="htlAboutLeft"><span>Created by:</span><span>API goodness provided by:</span></div><div id="htlAboutRight"><span><a href="http://twitter.com/majman" target="_blank">Marshall Jones</a> & <a href="http://ex.fm/" target="_blank">exfm</a></span><span><a href="http://last.fm" target="_blank">Last.fm</a>, <a href="http://the.echonest.com/" target="_blank">The Echo Nest</a>, <a href="http://bandcamp.com" target="_blank">Bandcamp</a></span></div><a href="https://chrome.google.com/webstore/detail/baccjcijijhckmofcmhkkkhmffclledj" target="_blank">Give us feedback!</a><a href="http://ex.fm/" target="_blank" style="background-image:url('+chrome.extension.getURL("/images/exfm-logo-faded.png")+') !important;" id="htlExfmLogo"></a></div>');
+				var htlAboutLink = $('<div id="htlAboutLink" style="background-image:url('+chrome.extension.getURL("images/play-pause.png")+') !important;">About</div>');
+				htlNav.append(htlAboutLink);
+				
+				
+				htlResults.append(htlNav);
+				htlResultMenu.append(htlArtistNamesWrapper);
+				htlResults.append(htlResultMenu);
+				htlResults.append(htlResultsWrapper);
+				htlResults.append(htlAbout);
+
+				/// ======================================
+				// Get Last FM Data
+				// ======================================					
+				getArtistData(artists);
+				getBandcamp(artists);
+			}
+			
+			// ==================================================
+			// Check Bandcamp for more goodness!
+			// ==================================================
+			function getBandcamp(artists){
+				var api_key = 'aumleikrgildahlammanmadkr';
+				var artistSearch = 'http://api.bandcamp.com/api/band/3/search';
+				var totalArtists = artists.length;
+				artists.each(function(i){
+					var a = $(htlResults).find('.htlArtist').eq(i);
+					var aNav = $(htlResults).find('.htlResultThumb').eq(i);
+					var artistname = this.name;
+					
+					$.ajax({
+			            data: '&key='+api_key+'&name='+artistname,
+			            url: artistSearch,
+			            dataType:'jsonp',
+			            success:function(data){
+							if(data.results.length > 0){
+								if(data.results[0].url != undefined){
+									var bcLink = '<a style="background-image:url('+chrome.extension.getURL("images/buy.png")+');" href="'+data.results[0].url+'" class="htlBandcamp"></a>';
+									$(htlResults).find('.htlArtistLinks').eq(i).prepend(bcLink);
+								}
+							}
+			           	},
+						error:function(e){
+							addArtistData(totalArtists);
+						}
+			        });										
+				});
+			}
+			
+			/// ======================================
+			// Get Last.fm Artist Data
+			// ======================================
+			function getArtistData(artists){
+				
+				var api_key = 'f14983361e74e0e616d6f097c01d0863';
+				var artistSearch = 'http://ws.audioscrobbler.com/2.0/?method=artist.getinfo';
+				var totalArtists = artists.length;
+				artists.each(function(i){
+					var a = $(htlResults).find('.htlArtist').eq(i);
+					var aNav = $(htlResults).find('.htlResultThumb').eq(i);
+					var artistname = this.name;
+					
+					var audioBadge = ' ';
+					if($(this).data('totalTitles') > 0){
+						audioBadge = '<div class="htlResultsNum">'+$(this).data('totalTitles')+'</div>';
+					}
+					
+					$.ajax({
+			            data: '&api_key='+api_key+'&format=json&limit=1&artist='+artistname,
+			            url: artistSearch,
+			            dataType:'jsonp',
+			            processData:false,
+			            global:false,
+			            success:function(data){
+							if(data.error){
+
+							}else{
+								var lfmResults = {
+									'img':data.artist.image[3]['#text'],
+									'bio':data.artist.bio.summary
+								}
+								if(lfmResults.bio.length > 5){
+									$(a).find('.htlBioText').html(lfmResults.bio);
+								}else{
+									//$(a).find('.htlBio').css('display', 'none');
+								}
+								if(lfmResults.img.length > 5){
+									$(a).find('.htlImages').html('<img class="htlImage" src="'+lfmResults.img+'" />');
+									var tsrc = lfmResults.img.replace('252', '126s');
+									$(aNav).css('background-image', 'url('+tsrc+') !important').html(audioBadge);
+								}
+							}
+							addArtistData(totalArtists);
+			           	},
+						error:function(e){
+							addArtistData(totalArtists);
+						}
+			        });										
+				});
+			}
+			
+			// ==================================================
+			// finish when data added for all artists
+			// ==================================================
+			var dataAdded = 0;
+			function addArtistData(totalArtists){
+				// console.log('an artist added')
+				dataAdded++;
+				if(dataAdded >= totalArtists){
+					// console.log('finished adding, now display')
+					chrome.tabs.getSelected(null, function(tab) {
+					  chrome.tabs.sendRequest(tab.id, {data:htlResults.html()});
+					});
+					dataAdded = 0;
+				}
+			}
+			
+		});		
+		
+		// ==================================================
+		// Date Format Fun
+		// ==================================================
+		var dateFormat = function () {
+			var	token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
+				timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
+				timezoneClip = /[^-+\dA-Z]/g,
+				pad = function (val, len) {
+					val = String(val);
+					len = len || 2;
+					while (val.length < len) val = "0" + val;
+					return val;
+				};
+
+			// Regexes and supporting functions are cached through closure
+			return function (date, mask, utc) {
+				var dF = dateFormat;
+
+				// You can't provide utc if you skip other args (use the "UTC:" mask prefix)
+				if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !/\d/.test(date)) {
+					mask = date;
+					date = undefined;
+				}
+
+				// Passing date through Date applies Date.parse, if necessary
+				date = date ? new Date(date) : new Date;
+				if (isNaN(date)) throw SyntaxError("invalid date");
+
+				mask = String(dF.masks[mask] || mask || dF.masks["default"]);
+
+				// Allow setting the utc argument via the mask
+				if (mask.slice(0, 4) == "UTC:") {
+					mask = mask.slice(4);
+					utc = true;
+				}
+
+				var	_ = utc ? "getUTC" : "get",
+					d = date[_ + "Date"](),
+					D = date[_ + "Day"](),
+					m = date[_ + "Month"](),
+					y = date[_ + "FullYear"](),
+					H = date[_ + "Hours"](),
+					M = date[_ + "Minutes"](),
+					s = date[_ + "Seconds"](),
+					L = date[_ + "Milliseconds"](),
+					o = utc ? 0 : date.getTimezoneOffset(),
+					flags = {
+						d:    d,
+						dd:   pad(d),
+						ddd:  dF.i18n.dayNames[D],
+						dddd: dF.i18n.dayNames[D + 7],
+						m:    m + 1,
+						mm:   pad(m + 1),
+						mmm:  dF.i18n.monthNames[m],
+						mmmm: dF.i18n.monthNames[m + 12],
+						yy:   String(y).slice(2),
+						yyyy: y,
+						h:    H % 12 || 12,
+						hh:   pad(H % 12 || 12),
+						H:    H,
+						HH:   pad(H),
+						M:    M,
+						MM:   pad(M),
+						s:    s,
+						ss:   pad(s),
+						l:    pad(L, 3),
+						L:    pad(L > 99 ? Math.round(L / 10) : L),
+						t:    H < 12 ? "a"  : "p",
+						tt:   H < 12 ? "am" : "pm",
+						T:    H < 12 ? "A"  : "P",
+						TT:   H < 12 ? "AM" : "PM",
+						Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
+						o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+						S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
+					};
+
+				return mask.replace(token, function ($0) {
+					return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
+				});
+			};
+		}();
+		
+		// Some common format strings
+		dateFormat.masks = {
+			"default":      "ddd mmm dd yyyy HH:MM:ss",
+			shortDate:      "m/d/yy",
+			mediumDate:     "mmm d, yyyy",
+			longDate:       "mmmm d, yyyy",
+			fullDate:       "dddd, mmmm d, yyyy",
+			shortTime:      "h:MM TT",
+			mediumTime:     "h:MM:ss TT",
+			longTime:       "h:MM:ss TT Z",
+			isoDate:        "yyyy-mm-dd",
+			isoTime:        "HH:MM:ss",
+			isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
+			isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
+		};
+		// Internationalization strings
+		dateFormat.i18n = {
+			dayNames: [
+				"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+				"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+			],
+			monthNames: [
+				"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+			]
+		};
+		// For convenience...
+		Date.prototype.format = function (mask, utc) {
+			return dateFormat(this, mask, utc);
+		};
+	
+		// ==================================================
+		// Analytics
+		// ==================================================
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-23836112-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+		
+		chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+			//console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
+			if (request.gEvent != undefined){
+				_gaq.push(['_trackEvent', request.gEvent+':'+request.gValue, request.gEvent, 'from:'+sender.tab.url]);
+				//console.log(request.gEvent+':'+request.gValue, request.gEvent, 'from:'+sender.tab.url)
+			}
+			sendResponse({});
+		});
+
+		function trackSearch(st, taburl) {
+			_gaq.push(['_trackEvent', 'search '+st, 'search', 'from '+taburl]);
+		};	
+		
+	</script>
+	
+  </head>
+  <body>
+  </body>
+</html>
