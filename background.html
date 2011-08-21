@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>Background Page</title>
-	<script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 	
 	<script>
 		$(function(){
@@ -13,10 +13,10 @@
 			chrome.contextMenus.create({"title": "Find audio by \'%s\'", 
 				"contexts":["selection"], 
 				"onclick": function(info, tab) {
-					//console.log('inserted '+inserted["tab"+tab.id])
-					if(inserted["tab"+tab.id] == undefined){
+					//console.log('test', 'inserted '+inserted["tab"+tab.id])
+					if(inserted["tab"+tab.id] == undefined || inserted["tab"+tab.id] == null){
 						chrome.tabs.insertCSS(null, {file: "css/htl.css"}, function(){
-							chrome.tabs.executeScript(null, {file: "js/jquery-1.4.3.min.js"});
+							chrome.tabs.executeScript(null, {file: "js/jquery-1.6.2.min.js"});
 							chrome.tabs.executeScript(null, {file: "js/contentscript.js"}, function(){
 								sendSearch(info.selectionText);
 								showIndicator();
@@ -27,9 +27,17 @@
 						sendSearch(info.selectionText);
 						showIndicator();
 					}
-					
 				}
 			});
+
+			chrome.tabs.onUpdated.addListener(
+				function(tabId, changeInfo, tab){
+					if(inserted["tab"+tab.id] == true){
+						inserted["tab"+tab.id] = null;
+					}
+				}
+			)
+
 
 			// ==================================================
 			// Preload Indicator
@@ -37,7 +45,7 @@
 			function showIndicator(){
 				chrome.tabs.getSelected(null, function(tab) {
 				  	chrome.tabs.sendRequest(tab.id, {preload:'true'}, function(response){
-						//console.log('response = ', response, tab.id, tab.url)
+					//	console.log('response = ', response, tab.id, tab.url)
 					});
 				});
 			}
@@ -46,17 +54,17 @@
 			// Search Echo Nest
 			// ==================================================
 			function sendSearch(searchTerm){
+				//console.log('search '+searchTerm)
 				$.ajax({
 					"url" : "http://developer.echonest.com/api/v4/artist/search?bucket=audio&bucket=blogs&bucket=urls", 
 					"type" : "GET", 
 					"data" : {'api_key':'N6E4NIOVYMTHNDM8J', 
-						'format':'jsonp', 
+						'format':'json', 
 						'name': searchTerm, 
 						'results':'5', 
 						'sort':'familiarity-desc'
 						}, 
-					"success" : createResultsPage, 
-					"dataType" : "jsonp"
+					"success" : createResultsPage
 				});
 
 				chrome.tabs.getSelected(null, function(tab) {
@@ -221,7 +229,7 @@
 				// ==================================================
 				// Add About Page
 				// ==================================================
-				var htlAbout = $('<div id="htlAbout" class="htlAboutOff"><div id="htlAboutLeft"><span>Created by:</span><span>API goodness provided by:</span></div><div id="htlAboutRight"><span><a href="http://twitter.com/majman" target="_blank">Marshall Jones</a> & <a href="http://ex.fm/" target="_blank">exfm</a></span><span><a href="http://last.fm" target="_blank">Last.fm</a>, <a href="http://the.echonest.com/" target="_blank">The Echo Nest</a>, <a href="http://bandcamp.com" target="_blank">Bandcamp</a></span></div><a href="https://chrome.google.com/webstore/detail/baccjcijijhckmofcmhkkkhmffclledj" target="_blank">Give us feedback!</a><a href="http://ex.fm/" target="_blank" style="background-image:url('+chrome.extension.getURL("/images/exfm-logo-faded.png")+') !important;" id="htlExfmLogo"></a></div>');
+				var htlAbout = $('<div id="htlAbout" class="htlAboutOff"><div id="htlAboutLeft"><span>Created by:</span><span>API goodness provided by:</span></div><div id="htlAboutRight"><span><a href="http://twitter.com/majman" target="_blank">Marshall Jones</a> & <a href="http://ex.fm/" target="_blank">exfm</a></span><span><a href="http://last.fm" target="_blank">Last.fm</a>, <a href="http://the.echonest.com/" target="_blank">The Echo Nest</a>, <a href="http://bandcamp.com" target="_blank">Bandcamp</a></span></div><a href="https://chrome.google.com/webstore/detail/baccjcijijhckmofcmhkkkhmffclledj" target="_blank">Rate Highlight to Listen in the Google Web Store!</a><a href="http://ex.fm/" target="_blank" style="background-image:url('+chrome.extension.getURL("/images/exfm-logo-faded.png")+') !important;" id="htlExfmLogo"></a></div>');
 				var htlAboutLink = $('<div id="htlAboutLink" style="background-image:url('+chrome.extension.getURL("images/play-pause.png")+') !important;">About</div>');
 				htlNav.append(htlAboutLink);
 				

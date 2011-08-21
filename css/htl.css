@@ -86,6 +86,8 @@ body div#htlResults{
 	color:#222;
 	background:rgba(255,255,255, 0.94);
 	
+	-webkit-perspective: 1000;
+	-webkit-backface-visibility: hidden;
 	-webkit-transition:all .1s ease-out;
 	-webkit-transform:translateY(0px);
 	-webkit-transform:translateZ(0px);
@@ -116,7 +118,7 @@ body div.htlResultThumb{
 	margin-bottom:10px !important;
 	background-color: #666 !important;
 	position:relative;
-	
+	cursor:pointer;
 	-webkit-transition:all .1s linear;
 }
 body div#htlResultActive.htlResultThumb{
@@ -410,19 +412,6 @@ body div.htlBlogs .htlBlog a{
 body div.htlBlogs .htlBlogDate{
 	float:right;
 	display:block;
-}
-
-
-#htlResults{
-	
-	-webkit-transition: -webkit-transform 1s;
-	-webkit-transform-style: preserve-3d;
-	-webkit-transform-origin: right center;
-	-webkit-transform-origin-x: 100%;
-	-webkit-transform-origin-y: 50%;
-}
-#htlResults.flipped {
-	-webkit-transform: translateX( -100% ) rotateY( -180deg );
 }
 
 

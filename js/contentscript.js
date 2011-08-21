@@ -1,6 +1,6 @@
 /*!
- * Contact: E-mail:  marshall _AT extension _DOT fm
- *          Twitter: majman
+ * Contact: E-mail:  marshall _AT ex _DOT fm
+ *          Twitter: @majman
  *          Website: http://extension.fm
  */
 
@@ -39,7 +39,7 @@ $(function(){
 			});
 			
 			// close btn
-			$('#htlClose').live('click', function(){
+			$('#htlClose, #htlBlock').live('click', function(){
 				htlKiller();
 			});
 			// close on esc key
@@ -333,23 +333,25 @@ $(function(){
 			sendtoExfm();
 		}
 
+		// preloader indicator
 		if(request.preload){
 			var preloader = $('body').prepend('<div class="htlPreZoom" id="htlLoader" style="background-image:url('+chrome.extension.getURL("images/loading.gif")+') !important; left:'+Number($(window).width()/2-20)+'px; top:'+Number($(window).height()/2-40)+'px"></div>');
 			setTimeout(function(){
 				$('#htlLoader').removeClass('htlPreZoom');
-			}, 20);
+				}, 20);
 
-				var selection = getSelectedText();
-				var elmt = $(selection.e.focusNode.parentNode);
+			var selection = getSelectedText();
+			var elmt = $(selection.e.focusNode.parentNode);
 
-				var elmtText = $(elmt).html();
-				$(elmt).html(elmtText.replace(selection.t, '<span id="htlSelectedText">'+selection.t+'</span>'));
-				
-				$('#htlSelectedText').addClass('htlOn');
+			var elmtText = $(elmt).html();
+			$(elmt).html(elmtText.replace(selection.t, '<span id="htlSelectedText">'+selection.t+'</span>'));
+
+			$('#htlSelectedText').addClass('htlOn');
 		}
 		
 		sendResponse({})
 	});
+
 
 	function getSelectedText(){ 
 		var t, e;
